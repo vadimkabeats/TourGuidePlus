@@ -23,31 +23,24 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.example.tourguideplus.navigation.Screen
+
 
 
 @Composable
 fun PlacesScreen(
+    navController: NavController,
     viewModel: PlaceViewModel = viewModel()
 ) {
-    // Подписываемся на список мест
     val places by viewModel.places.collectAsState()
-
-    // Основной LazyColumn
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(vertical = 8.dp)
-    ) {
+    LazyColumn {
         items(places) { place ->
             PlaceItem(
                 place = place,
-                onToggleFavorite = {
-                    // Инвертируем флаг isFavorite
-                    viewModel.upsert(place.copy(isFavorite = !place.isFavorite))
-                },
+                onToggleFavorite = { viewModel.upsert(place.copy(isFavorite = !place.isFavorite)) },
                 onClick = {
-                    // TODO: навигация на детали
+                    navController.navigate(Screen.PlaceDetails.createRoute(place.id))
                 }
             )
         }
@@ -57,8 +50,8 @@ fun PlacesScreen(
 @Composable
 fun PlaceItem(
     place: Place,
-    onToggleFavorite: () -> Unit,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onToggleFavorite: () -> Unit
 ) {
     Card(
         modifier = Modifier

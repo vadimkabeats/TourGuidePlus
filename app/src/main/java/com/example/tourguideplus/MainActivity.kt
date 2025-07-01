@@ -7,7 +7,6 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.*
@@ -20,7 +19,8 @@ import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.icons.filled.Add
-
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 
 
 class MainActivity : ComponentActivity() {
@@ -59,6 +59,8 @@ class MainActivity : ComponentActivity() {
                                             is Screen.Weather -> Icons.Default.Cloud
                                             is Screen.Help -> Icons.Default.Info
                                             is Screen.PlaceForm -> Icons.Default.Add
+                                            is Screen.PlaceForm    -> Icons.Default.Add
+                                            is Screen.PlaceDetails -> Icons.Default.Info
                                         },
                                         contentDescription = screen.title
                                     )
@@ -85,12 +87,41 @@ class MainActivity : ComponentActivity() {
                     startDestination = Screen.Places.route,
                     modifier = Modifier.padding(innerPadding)
                 ) {
-                    composable(Screen.Places.route) { PlacesScreen() }
-                    composable(Screen.Routes.route) { RoutesScreen() }
-                    composable(Screen.Favorites.route) { FavoritesScreen() }
-                    composable(Screen.Weather.route) { WeatherScreen() }
-                    composable(Screen.PlaceForm.route) {
-                        AddEditPlaceScreen(navController = navController)
+                    // Экран списка мест
+                    composable(Screen.Places.route) {
+                        PlacesScreen(navController = navController)
+                    }
+                    // Экран формы добавления/редактирования
+                    composable(
+                        route = Screen.PlaceForm.route,
+                        arguments = listOf(navArgument("placeId") {
+                            type = NavType.StringType
+                            defaultValue = "null"
+                        })
+                    ) { backStack ->
+                        val raw = backStack.arguments?.getString("placeId")
+                        val editId = raw?.toIntOrNull()
+                        AddEditPlaceScreen(navController = navController, editPlaceId = editId)
+                    }
+                    // Экран маршрутов
+                    composable(Screen.Routes.route) {
+                        RoutesScreen(navController = navController)
+                    }
+                    // Экран избранного
+                    composable(Screen.Favorites.route) {
+                        FavoritesScreen(navController = navController)
+                    }
+                    // Экран погоды
+                    composable(Screen.Weather.route) {
+                        WeatherScreen(navController = navController)
+                    }
+                    // Экран деталей места
+                    composable(
+                        route = Screen.PlaceDetails.route,
+                        arguments = listOf(navArgument("placeId") { type = NavType.IntType })
+                    ) { backStack ->
+                        val id = backStack.arguments?.getInt("placeId") ?: return@composable
+                        PlaceDetailsScreen(placeId = id, navController = navController)
                     }
                 }
             }
