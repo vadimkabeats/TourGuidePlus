@@ -1,9 +1,12 @@
 package com.example.tourguideplus.ui
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -14,11 +17,30 @@ import com.example.tourguideplus.data.model.Place
 fun AddEditPlaceScreen(
     navController: NavController,
     viewModel: PlaceViewModel = viewModel()
-) {
+) {    //  Получаем Context для сохранения фото
+    val context = LocalContext.current
+
+    //  Состояние для URI
+    var imageUri by remember { mutableStateOf<String?>(null) }
+
+    //  Лончеры для галереи и камеры
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        imageUri = uri?.toString()
+    }
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicturePreview()
+    ) { bitmap ->
+        val uri = saveBitmapAndGetUri(context, bitmap)
+        imageUri = uri.toString()
+    }
     // локальные состояния для полей формы
     var name by remember { mutableStateOf("") }
     var category by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
+    var imageUri by remember { mutableStateOf<String?>(null) }
     // TODO: добавим imageUri, latitude, longitude позже
 
     Scaffold(
