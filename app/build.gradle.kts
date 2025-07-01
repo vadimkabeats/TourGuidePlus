@@ -62,8 +62,7 @@ dependencies {
     kapt("androidx.room:room-compiler:2.6.1")
 
     // Glide (через Accompanist для Compose)
-
-
+    implementation("io.coil-kt:coil-compose:2.4.0")
     // Retrofit (для погоды)
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")

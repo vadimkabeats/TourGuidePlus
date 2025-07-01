@@ -1,48 +1,66 @@
 package com.example.tourguideplus.ui
 
+import android.graphics.Bitmap
+import android.os.Environment
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
+import com.example.tourguideplus.data.model.Place
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.tourguideplus.data.model.Place
+import coil.compose.AsyncImage
+import java.io.File
+import java.io.FileOutputStream
+
 
 
 @Composable
 fun AddEditPlaceScreen(
     navController: NavController,
     viewModel: PlaceViewModel = viewModel()
-) {    //  Получаем Context для сохранения фото
+) {
+    // Context и состояния
     val context = LocalContext.current
-
-    //  Состояние для URI
+    var name by remember { mutableStateOf("") }
+    var category by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
     var imageUri by remember { mutableStateOf<String?>(null) }
 
-    //  Лончеры для галереи и камеры
+    // Вспомогательная функция для сохранения Bitmap во файл
+    fun saveBitmapAndGetUri(context: android.content.Context, bitmap: Bitmap): android.net.Uri {
+        val picturesDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val file = File(picturesDir, "place_${System.currentTimeMillis()}.jpg")
+        FileOutputStream(file).use { out ->
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
+        }
+        return FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
+    }
+    // Лончеры для выбора фото
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
         imageUri = uri?.toString()
     }
-
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicturePreview()
-    ) { bitmap ->
-        val uri = saveBitmapAndGetUri(context, bitmap)
-        imageUri = uri.toString()
+    ) { bitmap: Bitmap? ->
+        bitmap?.let {
+            val uri = saveBitmapAndGetUri(context, it)
+            imageUri = uri.toString()
+        }
     }
-    // локальные состояния для полей формы
-    var name by remember { mutableStateOf("") }
-    var category by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var imageUri by remember { mutableStateOf<String?>(null) }
-    // TODO: добавим imageUri, latitude, longitude позже
 
+
+    // UI: форма
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Добавить место") })
@@ -55,6 +73,35 @@ fun AddEditPlaceScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            // 4.1 Превью фото
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                if (imageUri != null) {
+                    AsyncImage(
+                        model = imageUri,
+                        contentDescription = "Фото места",
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }else {
+                    Text("Нет фото", style = MaterialTheme.typography.caption)
+                }
+            }
+
+            // Кнопки выбора фото
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = { galleryLauncher.launch("image/*") }) {
+                    Text("Из галереи")
+                }
+                Button(onClick = { cameraLauncher.launch(null) }) {
+                    Text("С камеры")
+                }
+            }
+
+            //  Поля ввода текста
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
@@ -73,21 +120,24 @@ fun AddEditPlaceScreen(
                 label = { Text("Описание") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(120.dp)
+                    .height(120.dp),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
             )
-            Spacer(Modifier.weight(1f))
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            //  Кнопка сохранения
             Button(
                 onClick = {
-                    // сохраняем новое место
                     viewModel.upsert(
                         Place(
                             name = name,
                             category = category,
                             description = description,
-                            imageUri = null
+                            imageUri = imageUri
                         )
                     )
-                    navController.popBackStack() // возвращаемся на список
+                    navController.popBackStack()
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
