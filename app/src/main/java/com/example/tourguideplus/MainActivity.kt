@@ -1,47 +1,82 @@
 package com.example.tourguideplus
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.tourguideplus.ui.theme.TourGuidePlusTheme
+import androidx.navigation.compose.*
+import com.example.tourguideplus.navigation.Screen
+import com.example.tourguideplus.ui.*
+import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Cloud
+import androidx.compose.material.icons.filled.Info
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
-            TourGuidePlusTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+            val navController = rememberNavController()
+            val items = listOf(
+                Screen.Places, Screen.Routes, Screen.Favorites, Screen.Weather, Screen.Help
+            )
+            Scaffold(
+                bottomBar = {
+                    BottomNavigation {
+                        val navBackStackEntry by navController.currentBackStackEntryAsState()
+                        val currentRoute = navBackStackEntry?.destination?.route
+
+                        items.forEach { screen ->
+                            BottomNavigationItem(
+                                selected = currentRoute == screen.route,
+                                onClick = {
+                                    if (screen is Screen.Help) {
+                                        startActivity(Intent(this@MainActivity, HelpActivity::class.java))
+                                    } else {
+                                        navController.navigate(screen.route) {
+                                            popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                            launchSingleTop = true
+                                            restoreState = true
+                                        }
+                                    }
+                                },
+                                icon = {
+                                    Icon(
+                                        imageVector = when (screen) {
+                                            is Screen.Places -> Icons.Default.Place
+                                            is Screen.Routes -> Icons.Default.Map
+                                            is Screen.Favorites -> Icons.Default.Favorite
+                                            is Screen.Weather -> Icons.Default.Cloud
+                                            is Screen.Help -> Icons.Default.Info
+                                        },
+                                        contentDescription = screen.title
+                                    )
+                                },
+                                label = { Text(screen.title) }
+                            )
+                        }
+                    }
+                }
+            ) { innerPadding ->
+                NavHost(
+                    navController = navController,
+                    startDestination = Screen.Places.route,
+                    modifier = Modifier.padding(innerPadding)
+                ) {
+                    composable(Screen.Places.route) { PlacesScreen() }
+                    composable(Screen.Routes.route) { RoutesScreen() }
+                    composable(Screen.Favorites.route) { FavoritesScreen() }
+                    composable(Screen.Weather.route) { WeatherScreen() }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    TourGuidePlusTheme {
-        Greeting("Android")
     }
 }
