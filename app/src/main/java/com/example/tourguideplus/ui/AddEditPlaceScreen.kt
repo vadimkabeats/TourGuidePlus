@@ -1,6 +1,8 @@
 package com.example.tourguideplus.ui
 
+import android.content.Context
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Environment
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -23,6 +25,25 @@ import coil.compose.AsyncImage
 import java.io.File
 import java.io.FileOutputStream
 import androidx.compose.material.icons.filled.ArrowBack
+
+// ———————— Утилита копирования картинки ————————
+private fun copyGalleryImageToAppStorage(context: Context, sourceUri: Uri): Uri? {
+    return try {
+        val input = context.contentResolver.openInputStream(sourceUri) ?: return null
+        val picturesDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val outFile = File(picturesDir, "place_${System.currentTimeMillis()}.jpg")
+        FileOutputStream(outFile).use { output -> input.copyTo(output) }
+        input.close()
+        FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.provider",
+            outFile
+        )
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
 
 @Composable
 fun AddEditPlaceScreen(
@@ -64,8 +85,12 @@ fun AddEditPlaceScreen(
     // Лончеры для фото
     val galleryLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
-    ) { uri ->
-        imageUri = uri?.toString()
+    ) { originalUri: Uri? ->
+        originalUri?.let {
+            // вместо прямой записи originalUri, копируем
+            val persistedUri = copyGalleryImageToAppStorage(context, it)
+            imageUri = persistedUri?.toString()
+        }
     }
     val cameraLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.TakePicturePreview()
