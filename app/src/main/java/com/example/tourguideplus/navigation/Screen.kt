@@ -6,4 +6,5 @@ sealed class Screen(val route: String, val title: String) {
     object Favorites : Screen("favorites", "Избранное")
     object Weather : Screen("weather", "Погода")
     object Help : Screen("help", "Справка")
+    object PlaceForm : Screen("place_form", "Добавить место")
 }

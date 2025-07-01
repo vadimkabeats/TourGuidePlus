@@ -18,6 +18,9 @@ import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.icons.filled.Add
+
 
 
 class MainActivity : ComponentActivity() {
@@ -25,15 +28,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val navController = rememberNavController()
+            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val currentRoute = navBackStackEntry?.destination?.route
             val items = listOf(
                 Screen.Places, Screen.Routes, Screen.Favorites, Screen.Weather, Screen.Help
             )
             Scaffold(
                 bottomBar = {
                     BottomNavigation {
-                        val navBackStackEntry by navController.currentBackStackEntryAsState()
-                        val currentRoute = navBackStackEntry?.destination?.route
-
                         items.forEach { screen ->
                             BottomNavigationItem(
                                 selected = currentRoute == screen.route,
@@ -56,6 +58,7 @@ class MainActivity : ComponentActivity() {
                                             is Screen.Favorites -> Icons.Default.Favorite
                                             is Screen.Weather -> Icons.Default.Cloud
                                             is Screen.Help -> Icons.Default.Info
+                                            is Screen.PlaceForm -> Icons.Default.Add
                                         },
                                         contentDescription = screen.title
                                     )
@@ -64,7 +67,18 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     }
+                },
+                floatingActionButton = {
+                    // показываем только на экране Places
+                    if (currentRoute == Screen.Places.route) {
+                        FloatingActionButton(onClick = {
+                            navController.navigate(Screen.PlaceForm.route)
+                        }) {
+                            Icon(Icons.Default.Add, contentDescription = "Добавить место")
+                        }
+                    }
                 }
+
             ) { innerPadding ->
                 NavHost(
                     navController = navController,
@@ -75,6 +89,9 @@ class MainActivity : ComponentActivity() {
                     composable(Screen.Routes.route) { RoutesScreen() }
                     composable(Screen.Favorites.route) { FavoritesScreen() }
                     composable(Screen.Weather.route) { WeatherScreen() }
+                    composable(Screen.PlaceForm.route) {
+                        AddEditPlaceScreen(navController = navController)
+                    }
                 }
             }
         }
