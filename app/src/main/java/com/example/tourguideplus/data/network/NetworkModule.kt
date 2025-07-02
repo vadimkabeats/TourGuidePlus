@@ -18,7 +18,7 @@ object NetworkModule {
     }
 }
 object WikiNetwork {
-    private const val BASE_URL = "https://en.wikipedia.org/"
+    private const val BASE_URL = "https://ru.wikipedia.org/"
 
     val api: WikiApi by lazy {
         Retrofit.Builder()

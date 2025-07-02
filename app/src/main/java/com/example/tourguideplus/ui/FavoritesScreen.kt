@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tourguideplus.navigation.Screen
+import com.example.tourguideplus.ui.viewmodel.PlaceViewModel
 
 @Composable
 fun FavoritesScreen(

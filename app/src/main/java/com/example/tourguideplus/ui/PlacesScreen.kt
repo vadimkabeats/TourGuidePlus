@@ -25,7 +25,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import com.example.tourguideplus.navigation.Screen
-
+import com.example.tourguideplus.ui.viewmodel.PlaceViewModel
 
 
 @Composable

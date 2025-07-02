@@ -36,6 +36,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.core.content.ContextCompat
+import com.example.tourguideplus.ui.viewmodel.PlaceViewModel
 
 // Копирует картинку из галереи в локальную папку приложения
 private fun copyGalleryImageToAppStorage(context: Context, sourceUri: Uri): Uri? =
