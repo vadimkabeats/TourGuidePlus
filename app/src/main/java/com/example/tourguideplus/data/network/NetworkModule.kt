@@ -17,3 +17,14 @@ object NetworkModule {
         retrofit.create(OpenWeatherApi::class.java)
     }
 }
+object WikiNetwork {
+    private const val BASE_URL = "https://en.wikipedia.org/"
+
+    val api: WikiApi by lazy {
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(WikiApi::class.java)
+    }
+}
