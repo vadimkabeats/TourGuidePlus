@@ -6,7 +6,7 @@
     <!-- Разрешения -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
+    <uses-permission android:name="android.permission.INTERNET"/>
     <!-- Указываем, что камера не является обязательной аппаратной функцией -->
     <uses-feature
         android:name="android.hardware.camera"
