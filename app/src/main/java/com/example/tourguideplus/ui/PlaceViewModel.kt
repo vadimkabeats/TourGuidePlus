@@ -12,11 +12,13 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class PlaceViewModel(application: Application) : AndroidViewModel(application) {
-    // Получаем DAO и репозиторий
     private val repository: PlaceRepository
 
-    // StateFlow со списком мест
+    // Список всех мест
     val places: StateFlow<List<Place>>
+
+    //  Список избранного
+    val favoritePlaces: StateFlow<List<Place>>
 
     init {
         val dao = AppDatabase.getDatabase(application).placeDao()
@@ -28,14 +30,21 @@ class PlaceViewModel(application: Application) : AndroidViewModel(application) {
                 started = SharingStarted.WhileSubscribed(5_000),
                 initialValue = emptyList()
             )
+
+        favoritePlaces = repository.favoritePlaces
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = emptyList()
+            )
     }
 
-    // Добавить/обновить место
+    // добавление/обновление
     fun upsert(place: Place) = viewModelScope.launch {
         repository.upsert(place)
     }
 
-    // Удалить место
+    // удаление
     fun delete(place: Place) = viewModelScope.launch {
         repository.delete(place)
     }
