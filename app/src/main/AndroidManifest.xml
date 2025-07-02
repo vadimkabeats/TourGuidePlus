@@ -33,8 +33,9 @@
 
         <activity
             android:name=".HelpActivity"
-            android:exported="false"
+            android:exported="true"
             android:label="Справка"
+
              />
 
         <activity
