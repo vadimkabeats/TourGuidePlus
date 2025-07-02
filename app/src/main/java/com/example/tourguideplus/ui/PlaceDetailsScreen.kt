@@ -14,6 +14,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.tourguideplus.navigation.Screen
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.launch
 
 @Composable
@@ -26,7 +27,8 @@ fun PlaceDetailsScreen(
     val places by viewModel.places.collectAsState()
     val place = places.firstOrNull { it.id == placeId } ?: return
     val scope = rememberCoroutineScope()
-
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
     Scaffold(
         topBar = {
             TopAppBar(
@@ -85,12 +87,7 @@ fun PlaceDetailsScreen(
                 Text("Редактировать")
             }
             Button(
-                onClick = {
-                    scope.launch {
-                        viewModel.delete(place)
-                        navController.popBackStack()
-                    }
-                },
+                onClick = { showDeleteDialog = true },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color.Red)
             ) {

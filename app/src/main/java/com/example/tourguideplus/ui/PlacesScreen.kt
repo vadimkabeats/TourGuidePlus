@@ -109,7 +109,7 @@ fun PlaceItem(
                 Icon(
                     imageVector = if (place.isFavorite) Icons.Filled.Favorite
                     else Icons.Filled.FavoriteBorder,
-                    contentDescription = "Избранное"
+                    contentDescription = "Лучшее"
                 )
             }
         }
