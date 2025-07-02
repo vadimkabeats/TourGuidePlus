@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">TourGuidePlus</string>
+    <string name="version">Версия 1.0</string>
+    <string name="avtor">Автор: Иванов Иван Иванович</string>
+    <string name="overview">Автор:Приложение «ТурГид+» предназначено
+        для планирования путешествий: сохранение достопримечательностей,
+        маршрутов, фото и заметок.</string>
 </resources>

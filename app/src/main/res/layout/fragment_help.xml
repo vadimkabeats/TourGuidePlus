@@ -23,21 +23,21 @@
             android:id="@+id/tv_version"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Версия 1.0"
+            android:text="@string/version"
             android:layout_marginTop="8dp"/>
 
         <TextView
             android:id="@+id/tv_author"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Автор: Иванов Иван Иванович"
+            android:text="@string/avtor"
             android:layout_marginTop="16dp"/>
 
         <TextView
             android:id="@+id/tv_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Приложение «ТурГид+» предназначено для планирования путешествий: сохранение достопримечательностей, маршрутов, фото и заметок."
+            android:text="@string/overview"
             android:layout_marginTop="24dp"/>
     </LinearLayout>
 </ScrollView>
