@@ -95,4 +95,28 @@ fun PlaceDetailsScreen(
             }
         }
     }
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Удалить место?") },
+            text  = { Text("Вы уверены, что хотите удалить «${place.name}»?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    scope.launch {
+                        viewModel.delete(place)
+                        showDeleteDialog = false
+                        navController.popBackStack()
+                    }
+                }) {
+                    Text("Да, удалить")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text("Отмена")
+                }
+            }
+        )
+    }
 }
+
