@@ -22,7 +22,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

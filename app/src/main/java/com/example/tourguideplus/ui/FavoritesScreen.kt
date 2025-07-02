@@ -16,7 +16,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tourguideplus.navigation.Screen
 
-
 @Composable
 fun FavoritesScreen(
     navController: NavController,
