@@ -2,6 +2,7 @@ package com.example.tourguideplus.ui
 
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -15,6 +16,7 @@ import coil.compose.AsyncImage
 import com.example.tourguideplus.navigation.Screen
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import com.example.tourguideplus.ui.viewmodel.PlaceViewModel
 import kotlinx.coroutines.launch
 
 @Composable
@@ -29,6 +31,7 @@ fun PlaceDetailsScreen(
     val scope = rememberCoroutineScope()
     var showDeleteDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val wikiExtract by viewModel.wikiExtract.collectAsState()
     Scaffold(
         topBar = {
             TopAppBar(
@@ -63,16 +66,28 @@ fun PlaceDetailsScreen(
             Text(text = "Категория: ${place.category}", style = MaterialTheme.typography.subtitle1)
             Text(text = place.description, style = MaterialTheme.typography.body1)
 
-            // Координаты и кнопка «Открыть на карте»
-            if (place.latitude != null && place.longitude != null) {
-                Button(onClick = {
-                    val geoUri = Uri.parse("geo:${place.latitude},${place.longitude}?q=${place.latitude},${place.longitude}(${Uri.encode(place.name)})")
-                    navController.context.startActivity(
-                        Intent(Intent.ACTION_VIEW, geoUri)
-                    )
-                }) {
-                    Text("Открыть на карте")
-                }
+            // кнопка «Открыть на карте»
+            Button(
+                onClick = {
+                         val geoUri = Uri.parse("geo:0,0?q=${Uri.encode(place.name)}")
+                    val mapIntent = Intent(Intent.ACTION_VIEW, geoUri).apply {
+                                           addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                    val pm = context.packageManager
+                    if (mapIntent.resolveActivity(pm) != null) {
+                        context.startActivity(mapIntent)
+                    } else {
+                        // 2) Иначе — открываем в браузере веб-версию Google Maps
+                        val webUri = Uri.parse(
+                            "https://www.google.com/maps/search/?api=1&query=${Uri.encode(place.name)}"
+                        )
+                        val webIntent = Intent(Intent.ACTION_VIEW, webUri)
+                        context.startActivity(webIntent)
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Открыть на карте")
             }
 
             //  Кнопка «Редактировать»
@@ -92,6 +107,21 @@ fun PlaceDetailsScreen(
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color.Red)
             ) {
                 Text("Удалить", color = Color.White)
+            }
+            Button(
+                onClick = { viewModel.loadWiki(place.name) },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Получить краткое описание")
+            }
+            wikiExtract?.let { text ->
+                // Если текст пустой, показываем заглушку
+                val display = if (text.isBlank()) "Информация не найдена" else text
+                Text(
+                    text = display,
+                    style = MaterialTheme.typography.body2,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
     }
