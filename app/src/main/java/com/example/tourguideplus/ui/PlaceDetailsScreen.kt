@@ -13,6 +13,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.tourguideplus.navigation.Screen
+import androidx.compose.ui.graphics.Color
+import kotlinx.coroutines.launch
 
 @Composable
 fun PlaceDetailsScreen(
@@ -23,6 +25,7 @@ fun PlaceDetailsScreen(
     // Получаем все места из ViewModel и находим нужное
     val places by viewModel.places.collectAsState()
     val place = places.firstOrNull { it.id == placeId } ?: return
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -43,7 +46,7 @@ fun PlaceDetailsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // 1) Фото
+            //  Фото
             if (place.imageUri != null) {
                 AsyncImage(
                     model = place.imageUri,
@@ -54,11 +57,11 @@ fun PlaceDetailsScreen(
                 )
             }
 
-            // 2) Категория и описание
+            //  Категория и описание
             Text(text = "Категория: ${place.category}", style = MaterialTheme.typography.subtitle1)
             Text(text = place.description, style = MaterialTheme.typography.body1)
 
-            // 3) Координаты и кнопка «Открыть на карте»
+            // Координаты и кнопка «Открыть на карте»
             if (place.latitude != null && place.longitude != null) {
                 Button(onClick = {
                     val geoUri = Uri.parse("geo:${place.latitude},${place.longitude}?q=${place.latitude},${place.longitude}(${Uri.encode(place.name)})")
@@ -70,7 +73,7 @@ fun PlaceDetailsScreen(
                 }
             }
 
-            // 4) Кнопка «Редактировать»
+            //  Кнопка «Редактировать»
             Button(
                 onClick = {
                     navController.navigate(
@@ -80,6 +83,18 @@ fun PlaceDetailsScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Редактировать")
+            }
+            Button(
+                onClick = {
+                    scope.launch {
+                        viewModel.delete(place)
+                        navController.popBackStack()
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color.Red)
+            ) {
+                Text("Удалить", color = Color.White)
             }
         }
     }
