@@ -9,9 +9,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -19,86 +17,90 @@ import androidx.navigation.compose.*
 import androidx.navigation.navArgument
 import com.example.tourguideplus.navigation.Screen
 import com.example.tourguideplus.ui.*
-import com.example.tourguideplus.HelpActivity
+import androidx.compose.foundation.layout.statusBarsPadding
+import com.example.tourguideplus.ui.theme.TourGuidePlusTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val navController = rememberNavController()
-            val backStackEntry by navController.currentBackStackEntryAsState()
-            val currentRoute = backStackEntry?.destination?.route
+            TourGuidePlusTheme {
+                val navController = rememberNavController()
+                val backStackEntry by navController.currentBackStackEntryAsState()
+                val currentRoute = backStackEntry?.destination?.route
 
-            Scaffold(
-                bottomBar = { BottomBar(currentRoute, navController) },
-                floatingActionButton = { Fab(currentRoute, navController) }
-            ) { innerPadding ->
-                NavHost(
-                    navController = navController,
-                    startDestination = Screen.Places.route,
-                    modifier = Modifier.padding(innerPadding)
-                ) {
-                    // Места
-                    composable(Screen.Places.route) {
-                        PlacesScreen(navController)
-                    }
-                    // Форма места
-                    composable(
-                        route = Screen.PlaceForm.route,
-                        arguments = listOf(navArgument("placeId") {
-                            type = NavType.IntType
-                            defaultValue = -1
-                        })
-                    ) { backStack ->
-                        val raw = backStack.arguments?.getInt("placeId") ?: -1
-                        val editId = raw.takeIf { it >= 0 }
-                        AddEditPlaceScreen(navController, editId)
-                    }
-                    // Детали места
-                    composable(
-                        route = Screen.PlaceDetails.route,
-                        arguments = listOf(navArgument("placeId") {
-                            type = NavType.IntType
-                        })
-                    ) { backStack ->
-                        val id = backStack.arguments?.getInt("placeId") ?: return@composable
-                        PlaceDetailsScreen(placeId = id, navController)
-                    }
+                Scaffold(
+                    modifier = Modifier.statusBarsPadding(),
+                    bottomBar = { BottomBar(currentRoute, navController) },
+                    floatingActionButton = { Fab(currentRoute, navController) }
+                ) { innerPadding ->
+                    NavHost(
+                        navController = navController,
+                        startDestination = Screen.Places.route,
+                        modifier = Modifier.padding(innerPadding)
+                    ) {
+                        // Места
+                        composable(Screen.Places.route) {
+                            PlacesScreen(navController)
+                        }
+                        // Форма места
+                        composable(
+                            route = Screen.PlaceForm.route,
+                            arguments = listOf(navArgument("placeId") {
+                                type = NavType.IntType
+                                defaultValue = -1
+                            })
+                        ) { backStack ->
+                            val raw = backStack.arguments?.getInt("placeId") ?: -1
+                            val editId = raw.takeIf { it >= 0 }
+                            AddEditPlaceScreen(navController, editId)
+                        }
+                        // Детали места
+                        composable(
+                            route = Screen.PlaceDetails.route,
+                            arguments = listOf(navArgument("placeId") {
+                                type = NavType.IntType
+                            })
+                        ) { backStack ->
+                            val id = backStack.arguments?.getInt("placeId") ?: return@composable
+                            PlaceDetailsScreen(placeId = id, navController)
+                        }
 
-                    // Маршруты
-                    composable(Screen.Routes.route) {
-                        RoutesScreen(navController)
-                    }
-                    // Форма маршрута
-                    composable(
-                        route = Screen.RouteForm.route,
-                        arguments = listOf(navArgument("routeId") {
-                            type = NavType.IntType
-                            defaultValue = -1
-                        })
-                    ) { backStack ->
-                        val raw = backStack.arguments?.getInt("routeId") ?: -1
-                        val editId = raw.takeIf { it >= 0 }
-                        RouteFormScreen(navController, editId)
-                    }
-                    // Детали маршрута
-                    composable(
-                        route = Screen.RouteDetails.route,
-                        arguments = listOf(navArgument("routeId") {
-                            type = NavType.IntType
-                        })
-                    ) { backStack ->
-                        val id = backStack.arguments?.getInt("routeId") ?: return@composable
-                        RouteDetailsScreen(routeId = id, navController)
-                    }
+                        // Маршруты
+                        composable(Screen.Routes.route) {
+                            RoutesScreen(navController)
+                        }
+                        // Форма маршрута
+                        composable(
+                            route = Screen.RouteForm.route,
+                            arguments = listOf(navArgument("routeId") {
+                                type = NavType.IntType
+                                defaultValue = -1
+                            })
+                        ) { backStack ->
+                            val raw = backStack.arguments?.getInt("routeId") ?: -1
+                            val editId = raw.takeIf { it >= 0 }
+                            RouteFormScreen(navController, editId)
+                        }
+                        // Детали маршрута
+                        composable(
+                            route = Screen.RouteDetails.route,
+                            arguments = listOf(navArgument("routeId") {
+                                type = NavType.IntType
+                            })
+                        ) { backStack ->
+                            val id = backStack.arguments?.getInt("routeId") ?: return@composable
+                            RouteDetailsScreen(routeId = id, navController)
+                        }
 
-                    // Избранное
-                    composable(Screen.Favorites.route) {
-                        FavoritesScreen(navController)
-                    }
-                    // Погода
-                    composable(Screen.Weather.route) {
-                        WeatherScreen(navController)
+                        // Избранное
+                        composable(Screen.Favorites.route) {
+                            FavoritesScreen(navController)
+                        }
+                        // Погода
+                        composable(Screen.Weather.route) {
+                            WeatherScreen(navController)
+                        }
                     }
                 }
             }
