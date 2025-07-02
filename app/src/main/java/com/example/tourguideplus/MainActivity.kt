@@ -7,39 +7,53 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.compose.*
+import androidx.navigation.navArgument
 import com.example.tourguideplus.navigation.Screen
 import com.example.tourguideplus.ui.*
-import androidx.compose.material.icons.filled.Place
-import androidx.compose.material.icons.filled.Map
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Cloud
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.FloatingActionButton
-import androidx.compose.material.icons.filled.Add
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
+import com.example.tourguideplus.HelpActivity
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             val navController = rememberNavController()
-            val navBackStackEntry by navController.currentBackStackEntryAsState()
-            val currentRoute = navBackStackEntry?.destination?.route
-            val items = listOf(
-                Screen.Places, Screen.Routes, Screen.Favorites, Screen.Weather, Screen.Help
-            )
+            val backStack by navController.currentBackStackEntryAsState()
+            val currentRoute = backStack?.destination?.route
+
             Scaffold(
                 bottomBar = {
                     BottomNavigation {
-                        items.forEach { screen ->
+                        val tabs = listOf(
+                            Screen.Places,
+                            Screen.Routes,
+                            Screen.Favorites,
+                            Screen.Weather,
+                            Screen.Help
+                        )
+                        tabs.forEach { screen ->
                             BottomNavigationItem(
+                                icon = {
+                                    Icon(
+                                        imageVector = when (screen) {
+                                            Screen.Places    -> Icons.Default.Place
+                                            Screen.Routes    -> Icons.Default.Map
+                                            Screen.Favorites -> Icons.Default.Favorite
+                                            Screen.Weather   -> Icons.Default.Cloud
+                                            Screen.Help      -> Icons.Default.Info
+                                            else              -> Icons.Default.Place
+                                        },
+                                        contentDescription = screen.title
+                                    )
+                                },
+                                label = { Text(screen.title) },
                                 selected = currentRoute == screen.route,
                                 onClick = {
-                                    if (screen is Screen.Help) {
+                                    if (screen == Screen.Help) {
                                         startActivity(Intent(this@MainActivity, HelpActivity::class.java))
                                     } else {
                                         navController.navigate(screen.route) {
@@ -48,79 +62,85 @@ class MainActivity : ComponentActivity() {
                                             restoreState = true
                                         }
                                     }
-                                },
-                                icon = {
-                                    Icon(
-                                        imageVector = when (screen) {
-                                            is Screen.Places -> Icons.Default.Place
-                                            is Screen.Routes -> Icons.Default.Map
-                                            is Screen.Favorites -> Icons.Default.Favorite
-                                            is Screen.Weather -> Icons.Default.Cloud
-                                            is Screen.Help -> Icons.Default.Info
-                                            is Screen.PlaceForm -> Icons.Default.Add
-                                            is Screen.PlaceForm    -> Icons.Default.Add
-                                            is Screen.PlaceDetails -> Icons.Default.Info
-                                        },
-                                        contentDescription = screen.title
-                                    )
-                                },
-                                label = { Text(screen.title) }
+                                }
                             )
                         }
                     }
                 },
                 floatingActionButton = {
-                    // показываем только на экране Places
                     if (currentRoute == Screen.Places.route) {
                         FloatingActionButton(onClick = {
-                            navController.navigate(Screen.PlaceForm.route)
+                            navController.navigate(Screen.PlaceForm.createRoute(null))
                         }) {
                             Icon(Icons.Default.Add, contentDescription = "Добавить место")
                         }
                     }
                 }
-
             ) { innerPadding ->
                 NavHost(
                     navController = navController,
                     startDestination = Screen.Places.route,
                     modifier = Modifier.padding(innerPadding)
                 ) {
-                    // Экран списка мест
+                    // Места
                     composable(Screen.Places.route) {
-                        PlacesScreen(navController = navController)
+                        PlacesScreen(navController)
                     }
-                    // Экран формы добавления/редактирования
                     composable(
                         route = Screen.PlaceForm.route,
                         arguments = listOf(navArgument("placeId") {
-                            type = NavType.StringType
-                            defaultValue = "null"
+                            type = NavType.IntType
+                            defaultValue = -1
                         })
                     ) { backStack ->
-                        val raw = backStack.arguments?.getString("placeId")
-                        val editId = raw?.toIntOrNull()
+                        // получаем int (-1 означает «новое»)
+                        val raw = backStack.arguments?.getInt("placeId") ?: -1
+                        val editId = raw.takeIf { it >= 0 }  // null, если -1
                         AddEditPlaceScreen(navController = navController, editPlaceId = editId)
                     }
-                    // Экран маршрутов
-                    composable(Screen.Routes.route) {
-                        RoutesScreen(navController = navController)
-                    }
-                    // Экран избранного
-                    composable(Screen.Favorites.route) {
-                        FavoritesScreen(navController = navController)
-                    }
-                    // Экран погоды
-                    composable(Screen.Weather.route) {
-                        WeatherScreen(navController = navController)
-                    }
-                    // Экран деталей места
                     composable(
                         route = Screen.PlaceDetails.route,
-                        arguments = listOf(navArgument("placeId") { type = NavType.IntType })
+                        arguments = listOf(navArgument("placeId") {
+                            type = NavType.IntType
+                        })
                     ) { backStack ->
                         val id = backStack.arguments?.getInt("placeId") ?: return@composable
-                        PlaceDetailsScreen(placeId = id, navController = navController)
+                        PlaceDetailsScreen(id, navController)
+                    }
+
+                    // Маршруты
+                    composable(Screen.Routes.route) {
+                        RoutesScreen(navController)
+                    }
+                    composable(
+                        route = Screen.RouteForm.route,
+                        arguments = listOf(navArgument("routeId") {
+                            type = NavType.IntType
+                            defaultValue = -1
+                        })
+                    ) { backStack ->
+                        val rawId = backStack.arguments?.getInt("routeId") ?: -1
+                        // -1 трактуем как null (новая запись)
+                        val editId = rawId.takeIf { it >= 0 }
+                        RouteFormScreen(navController = navController, editRouteId = editId)
+                    }
+                    composable(
+                        route = Screen.RouteDetails.route,
+                        arguments = listOf(navArgument("routeId") {
+                            type = NavType.IntType
+                        })
+                    ) { backStack ->
+                        val id = backStack.arguments?.getInt("routeId") ?: return@composable
+                        RouteDetailsScreen(id, navController)
+                    }
+
+                    // Избранное
+                    composable(Screen.Favorites.route) {
+                        FavoritesScreen(navController)
+                    }
+                    // Погода
+                    composable(Screen.Weather.route) {
+                        WeatherScreen(navController)
                     }
                 }
             }

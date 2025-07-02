@@ -7,16 +7,20 @@ sealed class Screen(val route: String, val title: String) {
     object Weather : Screen("weather", "Погода")
     object Help : Screen("help", "Справка")
 
-    // Экран формы: без id — добавление, с id — редактирование
-    object PlaceForm : Screen("place_form/{placeId}", "Добавить/Редактировать") {
-        // Если id == null, навигируем просто на "place_form/null" — потом сможем ловить и понимать, что это добавление
-        fun createRoute(placeId: Int? = null): String =
-            "place_form/${placeId ?: "null"}"
+    // Экран создания/редактирования маршрута
+    object RouteForm : Screen("route_form/{routeId}", "Маршрут") {
+        // По умолчанию —1 означает «новый»
+        fun createRoute(routeId: Int? = null) = "route_form/${routeId ?: -1}"
     }
-
-    // Экран деталей места с обязательным параметром placeId
+    // Экран деталей маршрута
+    object RouteDetails   : Screen("route_details/{routeId}", "Детали маршрута") {
+        fun createRoute(routeId: Int): String = "route_details/$routeId"
+    }
+    object PlaceForm : Screen("place_form/{placeId}", "Добавить/Редактировать") {
+        // по умолчанию -1 = новый
+        fun createRoute(placeId: Int? = null) = "place_form/${placeId ?: -1}"
+    }
     object PlaceDetails : Screen("place_details/{placeId}", "Детали") {
-        fun createRoute(placeId: Int): String =
-            "place_details/$placeId"
+        fun createRoute(placeId: Int) = "place_details/$placeId"
     }
 }
