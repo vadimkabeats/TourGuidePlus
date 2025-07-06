@@ -26,6 +26,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import com.example.tourguideplus.navigation.Screen
 import com.example.tourguideplus.ui.viewmodel.PlaceViewModel
+import android.content.Intent
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.platform.LocalContext
+import com.example.tourguideplus.ui.PlacesListActivity
+
 
 
 @Composable
@@ -33,19 +38,46 @@ fun PlacesScreen(
     navController: NavController,
     viewModel: PlaceViewModel = viewModel()
 ) {
+    // Context, чтобы стартовать Activity
+    val context = LocalContext.current
+
+    //получаем список мест
     val places by viewModel.places.collectAsState()
-    LazyColumn {
-        items(places) { place ->
-            PlaceItem(
-                place = place,
-                onToggleFavorite = { viewModel.upsert(place.copy(isFavorite = !place.isFavorite)) },
-                onClick = {
-                    navController.navigate(Screen.PlaceDetails.createRoute(place.id))
-                }
-            )
+
+    //  меняем LazyColumn на Column
+    Column(Modifier.fillMaxSize()) {
+        //кнопка «Классический список»
+        Button(
+            onClick = {
+                // стартуем ваше Activity с фрагментом + RecyclerView
+                context.startActivity(
+                    Intent(context, PlacesListActivity::class.java)
+                )
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text("Открыть классический список")
+        }
+
+        // LazyColumn со списком мест
+        LazyColumn {
+            items(places) { place ->
+                PlaceItem(
+                    place = place,
+                    onToggleFavorite = {
+                        viewModel.upsert(place.copy(isFavorite = !place.isFavorite))
+                    },
+                    onClick = {
+                        navController.navigate(Screen.PlaceDetails.createRoute(place.id))
+                    }
+                )
+            }
         }
     }
 }
+
 
 @Composable
 fun PlaceItem(

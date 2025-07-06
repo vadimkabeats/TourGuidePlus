@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp">
+
+    <!-- Превью фото -->
+    <ImageView
+        android:id="@+id/iv_preview"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <!-- Название места -->
+    <TextView
+        android:id="@+id/tv_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Название"
+        android:textAppearance="?attr/textAppearanceSubtitle1"
+        android:paddingStart="8dp"
+        app:layout_constraintStart_toEndOf="@id/iv_preview"
+        app:layout_constraintTop_toTopOf="@id/iv_preview"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Категория или описание -->
+    <TextView
+        android:id="@+id/tv_category"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Категория"
+        android:textAppearance="?attr/textAppearanceBody2"
+        android:paddingStart="8dp"
+        app:layout_constraintStart_toEndOf="@id/iv_preview"
+        app:layout_constraintTop_toBottomOf="@id/tv_name"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/iv_preview"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
