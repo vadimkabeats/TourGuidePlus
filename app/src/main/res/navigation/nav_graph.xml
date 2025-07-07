@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/placesListFragment">
+
+    <!-- Список мест -->
+    <fragment
+        android:id="@+id/placesListFragment"
+        android:name="com.example.tourguideplus.ui.PlacesListFragment"
+        android:label="Места">
+        <action
+            android:id="@+id/action_to_placeDetails"
+            app:destination="@id/placeDetailsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right">
+            <argument
+                android:name="placeId"
+                app:argType="integer"/>
+        </action>
+        <action
+            android:id="@+id/action_to_placeForm"
+            app:destination="@id/placeFormFragment"/>
+    </fragment>
+
+    <!-- Детали места -->
+    <fragment
+        android:id="@+id/placeDetailsFragment"
+        android:name="com.example.tourguideplus.ui.PlaceDetailsFragment"
+        android:label="Детали места">
+        <argument android:name="placeId" app:argType="integer" />
+    </fragment>
+
+    <!-- Форма добавления/редактирования -->
+    <fragment
+        android:id="@+id/placeFormFragment"
+        android:name="com.example.tourguideplus.ui.PlaceFormFragment"
+        android:label="Добавить/Редактировать место">
+        <argument
+            android:name="placeId"
+            app:argType="integer"
+            android:defaultValue="-1"/>
+    </fragment>
+
+    <!-- Здесь по аналогии: RoutesListFragment, RouteDetailsFragment, RouteFormFragment -->
+    <!-- ... -->
+    <!-- FavoritesFragment, WeatherFragment, HelpFragment -->
+    <!-- ... -->
+</navigation>

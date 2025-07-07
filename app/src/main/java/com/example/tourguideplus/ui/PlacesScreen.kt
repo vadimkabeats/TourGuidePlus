@@ -30,26 +30,27 @@ import android.content.Intent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.platform.LocalContext
 import com.example.tourguideplus.ui.PlacesListActivity
-
-
+import androidx.compose.ui.res.stringResource
+import com.example.tourguideplus.R
 
 @Composable
 fun PlacesScreen(
     navController: NavController,
     viewModel: PlaceViewModel = viewModel()
 ) {
-    // Context, чтобы стартовать Activity
+    // 1. Контекст для запуска Activity
     val context = LocalContext.current
-
-    //получаем список мест
+    // 2. Список мест из ViewModel
     val places by viewModel.places.collectAsState()
 
-    //  меняем LazyColumn на Column
-    Column(Modifier.fillMaxSize()) {
-        //кнопка «Классический список»
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colors.background)
+    ) {
+        // 3. Кнопка «Открыть классический список»
         Button(
             onClick = {
-                // стартуем ваше Activity с фрагментом + RecyclerView
                 context.startActivity(
                     Intent(context, PlacesListActivity::class.java)
                 )
@@ -58,25 +59,33 @@ fun PlacesScreen(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            Text("Открыть классический список")
+            Text(text = stringResource(R.string.open_classic_list))
         }
 
-        // LazyColumn со списком мест
-        LazyColumn {
+        Divider(modifier = Modifier.padding(horizontal = 16.dp))
+
+        // 4. Список мест
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 8.dp),
+            contentPadding = PaddingValues(vertical = 4.dp)
+        ) {
             items(places) { place ->
                 PlaceItem(
                     place = place,
-                    onToggleFavorite = {
-                        viewModel.upsert(place.copy(isFavorite = !place.isFavorite))
-                    },
                     onClick = {
                         navController.navigate(Screen.PlaceDetails.createRoute(place.id))
+                    },
+                    onToggleFavorite = {
+                        viewModel.upsert(place.copy(isFavorite = !place.isFavorite))
                     }
                 )
             }
         }
     }
 }
+
 
 
 @Composable

@@ -6,4 +6,11 @@
         для планирования путешествий: сохранение достопримечательностей,
         маршрутов, фото и заметок.</string>
     <string name="places_list">Список мест</string>
+    <string name="open_classic_list">Открыть классический список</string>
+    <string name="places">Места</string>
+    <string name="routes">Маршруты</string>
+    <string name="favorites">Избранное</string>
+    <string name="weather">Погода</string>
+    <string name="help">Справка</string>
+    <string name="add_place">Добавить</string>
 </resources>
